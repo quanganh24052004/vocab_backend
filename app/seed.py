@@ -2,36 +2,26 @@ import json
 import os
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine, Base
-from app.models import Course, Lesson, Word, Meaning
+from app.modules.courses.model import Course, Lesson, Word, Meaning
 
 def seed_data():
-    # Tự động tạo bảng nếu chưa có
     Base.metadata.create_all(bind=engine)
-    
     db: Session = SessionLocal()
-    
     try:
-        # Xóa dữ liệu cũ nếu đã tồn tại để tránh rác khi test
         old_courses = db.query(Course).all()
         if old_courses:
-            print("Đang xoá dữ liệu cũ (Cascade) trong Database...")
+            print("Đang xoá dữ liệu cũ...")
             for c in old_courses:
                 db.delete(c)
             db.commit()
 
-        print("Đang đọc file JSON import...")
-        
-        # Đường dẫn tới file JSON (lấy từ biến môi trường hoặc mặc định)
         json_path = os.getenv("JSON_DATA_PATH", ".test/courses_data.json")
-        
         if not os.path.exists(json_path):
             print(f"Lỗi: Không tìm thấy file {json_path}")
             return
             
         with open(json_path, "r", encoding="utf-8") as f:
             data = json.load(f)
-
-        print(f"Đã tải {len(data)} khoá học. Bắt đầu import...")
 
         for course_data in data:
             course = Course(
@@ -40,7 +30,7 @@ def seed_data():
                 sub_description=course_data.get("subDescription")
             )
             db.add(course)
-            db.flush() # Lưu tạm để sinh ID
+            db.flush()
 
             for lesson_data in course_data.get("lessons", []):
                 lesson = Lesson(
@@ -72,13 +62,10 @@ def seed_data():
                             example_vi=meaning_data.get("exampleVi")
                         )
                         db.add(meaning)
-                        
-        # Commit toàn bộ transaction vào PostgreSQL
         db.commit()
-        print("Import thành công toàn bộ dữ liệu từ điển JSON!")
-
+        print("Import thành công!")
     except Exception as e:
-        print(f"Có lỗi xảy ra trong lúc chia data: {e}")
+        print(f"Lỗi: {e}")
         db.rollback()
     finally:
         db.close()

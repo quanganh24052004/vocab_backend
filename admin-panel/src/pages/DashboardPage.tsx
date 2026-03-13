@@ -76,7 +76,7 @@ const DashboardPage: React.FC = () => {
   const [userCount, setUserCount] = useState<number | '—'>('—');
 
   useEffect(() => {
-    api.get('/admin/users/')
+    api.get('/users/')
       .then(r => setUserCount(r.data.length))
       .catch(() => setUserCount(0));
   }, []);

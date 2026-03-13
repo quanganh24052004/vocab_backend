@@ -1,9 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
+import CoursesPage from './pages/CoursesPage';
 import Layout from './components/Layout';
 import './index.css';
 
@@ -28,13 +29,7 @@ const App: React.FC = () => {
           >
             <Route index element={<DashboardPage />} />
             <Route path="users" element={<UsersPage />} />
-            <Route path="courses" element={
-                <div className="flex flex-col items-center justify-center min-h-[50vh] text-slate-500">
-                    <h2 className="text-xl font-bold">Khóa học</h2>
-                    <p>Tính năng quản lý khóa học đang được xây dựng...</p>
-                    <Link to="/" className="mt-4 text-blue-500 hover:underline">Quay lại Dashboard</Link>
-                </div>
-            } />
+            <Route path="courses" element={<CoursesPage />} />
             <Route path="settings" element={
                 <div className="flex flex-col items-center justify-center min-h-[50vh] text-slate-500">
                     <h2 className="text-xl font-bold">Cài đặt</h2>

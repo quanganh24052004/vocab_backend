@@ -18,7 +18,7 @@ const UsersPage: React.FC = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    api.get('/admin/users/')
+    api.get('/users/')
       .then(r => setUsers(r.data))
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -28,7 +28,7 @@ const UsersPage: React.FC = () => {
     if (!confirm('Xóa tài khoản này? Toàn bộ dữ liệu học tập sẽ bị xóa vĩnh viễn.')) return;
     setDeletingId(id);
     try {
-      await api.delete(`/admin/users/${id}`);
+      await api.delete(`/users/${id}`);
       setUsers(prev => prev.filter(u => u.id !== id));
     } catch {
       alert('Xóa thất bại.');
