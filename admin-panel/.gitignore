@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+dist/
+.env
+*.local
+
+# Agent skill downloaded docs (regenerated via sync script, don't commit)
+.agents/skills/tailwind-4-docs/references/docs/
+.agents/skills/tailwind-4-docs/references/docs-index.tsx
