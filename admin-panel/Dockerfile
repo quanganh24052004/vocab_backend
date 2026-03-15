@@ -1,31 +1,27 @@
-# Build stage
-FROM node:20-alpine AS build
-
+# Stage 1: Build
+FROM node:20-alpine AS build-stage
 WORKDIR /app
-
-# Sao chép package.json và package-lock.json trước để tối ưu layer caching
-COPY package*.json ./
-RUN npm install
-
-# Sao chép toàn bộ mã nguồn
-COPY . .
-
-# Argument build-time cho API URL
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
-
-# Build ứng dụng
+COPY package*.json ./
+RUN npm install
+COPY . .
 RUN npm run build
 
-# Stage phục vụ bằng Nginx
-FROM nginx:stable-alpine
+# Stage 2: Production
+FROM nginx:stable-alpine AS production-stage
+# Copy toàn bộ file đã build vào thư mục gốc của Nginx
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-# Sao chép file build từ stage trước
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Sao chép file config Nginx custom để hỗ trợ sub-path /admin/
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Tạo file cấu hình Nginx nội bộ để xử lý Routing của React
+RUN echo 'server { \
+    listen 80; \
+    location / { \
+        root /usr/share/nginx/html; \
+        index index.html; \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
