@@ -21,7 +21,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Build and Push
         uses: docker/build-push-action@v5
@@ -42,15 +42,14 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             # 1. Đăng nhập để có quyền Pull
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
             cd ~/vocab-app
             
             # 2. Kéo bản mới nhất
             docker compose pull api
             
-            # 3. Dùng lệnh V2 để ép buộc dựng lại container sạch
-            # --remove-orphans: Xóa bỏ những container "rác" không có trong file compose
+            # 3. Dựng lại container
             docker compose up -d --force-recreate --remove-orphans api
             
             # 4. Quét sạch image cũ để giải phóng dung lượng VPS

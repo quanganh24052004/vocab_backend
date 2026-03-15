@@ -12,6 +12,7 @@ services:
         - postgres_data:/var/lib/postgresql/data
 
   api:
+    image: ghcr.io/quanganh24052004/vocab-backend:latest
     build: 
       context: ./backend
       dockerfile: Dockerfile
@@ -27,6 +28,7 @@ services:
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload 
 
   admin:
+    image: ghcr.io/quanganh24052004/vocab-admin:latest
     build:
       context: ./admin-panel
       dockerfile: Dockerfile
