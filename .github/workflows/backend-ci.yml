@@ -7,6 +7,10 @@ on:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
