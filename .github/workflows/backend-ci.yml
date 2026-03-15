@@ -10,7 +10,7 @@ on:
 permissions:
   contents: read
   packages: write
-
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -28,7 +28,8 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ghcr.io/quanganh24052004/vocab-backend:latest
+          # Dùng lowercase cho repo owner để tránh lỗi registry
+          tags: ghcr.io/${{ github.repository_owner }}/vocab-backend:latest
 
   deploy:
     needs: build-and-push
@@ -41,78 +42,17 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # 1. Đăng nhập để có quyền Pull
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
             cd ~/vocab-app
             
-            # 2. Kéo bản mới nhất
+            # 1. Cập nhật mật khẩu/biến môi trường từ GitHub Secrets (QUAN TRỌNG)
+            echo "${{ secrets.ENV_FILE }}" > .env
+            
+            # 2. Đăng nhập để kéo Image
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # 3. Kéo bản mới và ép khởi động lại để nhận .env mới
             docker compose pull api
+            docker compose up -d --force-recreate api
             
-            # 3. Dựng lại container
-            docker compose up -d --force-recreate --remove-orphans api
-            
-            # 4. Quét sạch image cũ để giải phóng dung lượng VPS
+            # 4. Dọn dẹp
             docker image prune -f
-# name: Backend CI/CD Pipeline
-
-# on:
-#   push:
-#     branches: [ "main" ]
-#     paths:
-#       - 'backend/**'
-#       - '.github/workflows/backend-ci.yml'
-
-# permissions:
-#   contents: read
-#   packages: write
-
-# jobs:
-#   build-and-push:
-#     name: Build & Push Docker Image
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout code
-#         uses: actions/checkout@v4
-
-#       - name: Log in to GitHub Container Registry (GHCR)
-#         uses: docker/login-action@v3
-#         with:
-#           registry: ghcr.io
-#           username: ${{ github.actor }}
-#           password: ${{ secrets.GITHUB_TOKEN }}
-
-#       - name: Build and Push Image
-#         uses: docker/build-push-action@v5
-#         with:
-#           context: ./backend
-#           push: true
-#           # Ép tên image về chữ thường để tránh lỗi Registry
-#           tags: ghcr.io/quanganh24052004/vocab-backend:latest
-
-#   deploy:
-#     name: Deploy to VPS
-#     needs: build-and-push
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: SSH into VPS and Deploy
-#         uses: appleboy/ssh-action@v1.0.3
-#         with:
-#           host: ${{ secrets.VPS_HOST }}
-#           username: ${{ secrets.VPS_USERNAME }}
-#           key: ${{ secrets.VPS_SSH_KEY }}
-#           script: |
-#             # 1. Đăng nhập vào GHCR (Dùng sudo nếu cần)
-#             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-#             # 2. Vào thư mục dự án
-#             cd ~/vocab-app
-            
-#             # 3. Kéo image mới (Thử cả 2 lệnh docker-compose và docker compose)
-#             (docker-compose pull api || docker compose pull api)
-            
-#             # 4. Khởi động lại với cờ --force-recreate để ép dùng bản mới nhất
-#             (docker-compose up -d --force-recreate --no-deps api || docker compose up -d --force-recreate --no-deps api)
-            
-#             # 5. Dọn dẹp các image cũ không dùng đến để giải phóng RAM/Ổ cứng
-#             docker image prune -f
