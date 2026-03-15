@@ -15,7 +15,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 const App: React.FC = () => {
   return (
-    <Router>
+    <Router basename="/admin">
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
