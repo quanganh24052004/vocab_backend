@@ -34,4 +34,8 @@ class Settings:
     # Admin config
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@vocab.com")
 
+    # Documentation Auth (Basic Auth)
+    DOCS_USERNAME: str = os.getenv("DOCS_USERNAME", "admin")
+    DOCS_PASSWORD: str = os.getenv("DOCS_PASSWORD", "capyvocab123") # Thay đổi password này trong .env
+
 settings = Settings()
