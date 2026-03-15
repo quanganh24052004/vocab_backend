@@ -53,10 +53,9 @@ jobs:
             cd ~/vocab-app
             
             # 3. Kéo image mới nhất vừa build về
-            docker compose pull api
+            (docker-compose pull api || docker compose pull api)
             
             # 4. Khởi động lại service API
-            docker compose up -d --no-deps api
-            
+            (docker-compose up -d --force-recreate --no-deps api || docker compose up -d --force-recreate --no-deps api)            
             # 5. Dọn dẹp image cũ
             docker image prune -f
