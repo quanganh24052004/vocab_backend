@@ -47,3 +47,4 @@ if __name__ == "__main__":
     
     # Bắt đầu quét
     print_tree(target_dir)
+    
