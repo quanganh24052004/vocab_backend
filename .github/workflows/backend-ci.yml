@@ -7,56 +7,109 @@ on:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
 
-permissions:
-  contents: read
-  packages: write
-
 jobs:
   build-and-push:
-    name: Build & Push Docker Image
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to GitHub Container Registry (GHCR)
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push Image
+      - name: Build and Push
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: true
-          # Ép tên image về chữ thường để tránh lỗi Registry
           tags: ghcr.io/quanganh24052004/vocab-backend:latest
 
   deploy:
-    name: Deploy to VPS
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: SSH into VPS and Deploy
+      - name: SSH and Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # 1. Đăng nhập vào GHCR (Dùng sudo nếu cần)
+            # 1. Đăng nhập để có quyền Pull
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            # 2. Vào thư mục dự án
             cd ~/vocab-app
             
-            # 3. Kéo image mới (Thử cả 2 lệnh docker-compose và docker compose)
-            (docker-compose pull api || docker compose pull api)
+            # 2. Kéo bản mới nhất
+            docker compose pull api
             
-            # 4. Khởi động lại với cờ --force-recreate để ép dùng bản mới nhất
-            (docker-compose up -d --force-recreate --no-deps api || docker compose up -d --force-recreate --no-deps api)
+            # 3. Dùng lệnh V2 để ép buộc dựng lại container sạch
+            # --remove-orphans: Xóa bỏ những container "rác" không có trong file compose
+            docker compose up -d --force-recreate --remove-orphans api
             
-            # 5. Dọn dẹp các image cũ không dùng đến để giải phóng RAM/Ổ cứng
+            # 4. Quét sạch image cũ để giải phóng dung lượng VPS
             docker image prune -f
+# name: Backend CI/CD Pipeline
+
+# on:
+#   push:
+#     branches: [ "main" ]
+#     paths:
+#       - 'backend/**'
+#       - '.github/workflows/backend-ci.yml'
+
+# permissions:
+#   contents: read
+#   packages: write
+
+# jobs:
+#   build-and-push:
+#     name: Build & Push Docker Image
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       - name: Log in to GitHub Container Registry (GHCR)
+#         uses: docker/login-action@v3
+#         with:
+#           registry: ghcr.io
+#           username: ${{ github.actor }}
+#           password: ${{ secrets.GITHUB_TOKEN }}
+
+#       - name: Build and Push Image
+#         uses: docker/build-push-action@v5
+#         with:
+#           context: ./backend
+#           push: true
+#           # Ép tên image về chữ thường để tránh lỗi Registry
+#           tags: ghcr.io/quanganh24052004/vocab-backend:latest
+
+#   deploy:
+#     name: Deploy to VPS
+#     needs: build-and-push
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: SSH into VPS and Deploy
+#         uses: appleboy/ssh-action@v1.0.3
+#         with:
+#           host: ${{ secrets.VPS_HOST }}
+#           username: ${{ secrets.VPS_USERNAME }}
+#           key: ${{ secrets.VPS_SSH_KEY }}
+#           script: |
+#             # 1. Đăng nhập vào GHCR (Dùng sudo nếu cần)
+#             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+#             # 2. Vào thư mục dự án
+#             cd ~/vocab-app
+            
+#             # 3. Kéo image mới (Thử cả 2 lệnh docker-compose và docker compose)
+#             (docker-compose pull api || docker compose pull api)
+            
+#             # 4. Khởi động lại với cờ --force-recreate để ép dùng bản mới nhất
+#             (docker-compose up -d --force-recreate --no-deps api || docker compose up -d --force-recreate --no-deps api)
+            
+#             # 5. Dọn dẹp các image cũ không dùng đến để giải phóng RAM/Ổ cứng
+#             docker image prune -f
