@@ -26,5 +26,15 @@ services:
     # Ghi đè lệnh CMD trong Dockerfile để bật tính năng hot-reload khi code ở máy tính
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload 
 
+  admin-frontend:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://api.amidemy.uk/api/v1
+    ports:
+      - "3000:80" # Map port 80 trong container ra 3000 trên host (hoặc port bạn muốn)
+    restart: always
+
 volumes:
   postgres_data:

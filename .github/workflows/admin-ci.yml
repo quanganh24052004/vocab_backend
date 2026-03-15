@@ -1,0 +1,60 @@
+name: Admin Panel CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'admin-panel/**'
+      - '.github/workflows/admin-ci.yml'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./admin-panel
+          push: true
+          # Build-time argument cho API URL
+          build-args: |
+            VITE_API_URL=https://api.amidemy.uk/api/v1
+          tags: ghcr.io/${{ github.repository_owner }}/vocab-admin:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # 1. Đăng nhập GHCR
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            cd ~/vocab-app
+            
+            # 2. Kéo image mới nhất
+            docker compose pull admin-frontend
+            
+            # 3. Khởi chạy lại container
+            docker compose up -d --force-recreate --remove-orphans admin-frontend
+            
+            # 4. Dọn dẹp image cũ
+            docker image prune -f
