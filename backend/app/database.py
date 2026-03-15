@@ -6,7 +6,6 @@ engine = create_engine(settings.DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# Dependency Injection cho FastAPI để lấy session DB
 def get_db():
     db = SessionLocal()
     try:
