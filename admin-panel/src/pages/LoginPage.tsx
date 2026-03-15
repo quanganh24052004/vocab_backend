@@ -25,8 +25,14 @@ const LoginPage: React.FC = () => {
       const response = await api.post('/auth/login', formData, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
-      login(response.data.access_token);
-      navigate('/');
+      
+      const token = response.data?.data?.accessToken;
+      if (token) {
+        login(token);
+        navigate('/');
+      } else {
+        setError('Phản hồi từ máy chủ không hợp lệ (Thiếu Token).');
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Email hoặc mật khẩu không chính xác.');
     } finally {
