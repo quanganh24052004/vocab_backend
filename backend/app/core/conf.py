@@ -26,6 +26,8 @@ class Settings:
     # CORS
     BACKEND_CORS_ORIGINS: list[str] = [
         "https://amidemy.uk",
+        "https://admin.amidemy.uk",
+        "https://api.amidemy.uk",
         "http://localhost:5173",  # Vite default
         "http://127.0.0.1:5173",
         "http://localhost:3000",
