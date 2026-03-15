@@ -26,7 +26,7 @@ services:
     # Ghi đè lệnh CMD trong Dockerfile để bật tính năng hot-reload khi code ở máy tính
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload 
 
-  admin-frontend:
+  admin:
     build:
       context: ./admin-panel
       dockerfile: Dockerfile
