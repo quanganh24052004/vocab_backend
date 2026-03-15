@@ -23,8 +23,8 @@ FROM nginx:stable-alpine
 # Sao chép file build từ stage trước
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# (Tùy chọn) Sao chép file config Nginx nếu cần config custom
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Sao chép file config Nginx custom để hỗ trợ sub-path /admin/
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
