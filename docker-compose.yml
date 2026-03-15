@@ -1,18 +1,20 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   db:
-    image: postgres:15-alpine
-    restart: always
-    env_file:
-      - .env
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      image: postgres:15-alpine
+      restart: always
+      env_file:
+        - .env
+      ports:
+        - "5433:5432" # <-- Đổi 5432 thành 5433 ở bên trái
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
 
   api:
-    build: .
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     env_file:
@@ -20,7 +22,36 @@ services:
     depends_on:
       - db
     volumes:
-      - ./app:/app/app
+      - ./backend/app:/app/app
+    # Ghi đè lệnh CMD trong Dockerfile để bật tính năng hot-reload khi code ở máy tính
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload 
 
 volumes:
   postgres_data:
+
+# version: '3.8'
+
+# services:
+#   db:
+#     image: postgres:15-alpine
+#     restart: always
+#     env_file:
+#       - .env
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+
+#   api:
+#     build: .
+#     ports:
+#       - "8000:8000"
+#     env_file:
+#       - .env
+#     depends_on:
+#       - db
+#     volumes:
+#       - ./app:/app/app
+
+# volumes:
+#   postgres_data:
