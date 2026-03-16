@@ -15,6 +15,9 @@ export const courseApi = {
   
   addLesson: (courseId: string, data: any) => 
     axiosInstance.post(`/courses/${courseId}/lessons`, data),
+  
+  importCourses: (data: any[]) => 
+    axiosInstance.post('/courses/import', data),
 };
 
 export default courseApi;

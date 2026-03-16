@@ -57,6 +57,15 @@ class CourseBase(SchemaBase):
 class CreateCourseParam(CourseBase):
     pass
 
+class BulkImportWordParam(CreateWordParam):
+    meanings: list[CreateMeaningParam]
+
+class BulkImportLessonParam(CreateLessonParam):
+    words: list[BulkImportWordParam]
+
+class BulkImportCourseParam(CreateCourseParam):
+    lessons: list[BulkImportLessonParam]
+
 class UpdateCourseParam(SchemaBase):
     name: str | None = None
     description: str | None = None

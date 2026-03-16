@@ -2,12 +2,13 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.core.deps import CurrentSession, CurrentAdmin
+from app.core.deps import CurrentSession, CurrentAdmin, get_current_admin
 from app.core.response import response_base, ResponseModel
 from app.modules.courses.schema import (
     GetCourseDetail, CreateCourseParam, UpdateCourseParam, 
     GetLessonDetail, CreateLessonParam,
-    GetWordDetail, GetMeaningDetail
+    GetWordDetail, GetMeaningDetail,
+    BulkImportCourseParam
 )
 from app.modules.courses.crud import crud_course, crud_lesson
 from app.modules.courses.model import Course, Lesson, Word, Meaning
@@ -62,3 +63,38 @@ def create_lesson(
     lesson_data["course_id"] = course_id
     lesson = crud_lesson.create(db, lesson_data)
     return response_base.success(data=lesson, msg="Thêm bài học thành công")
+
+@router.post("/import", summary="[Admin] Import hàng loạt khóa học", dependencies=[Depends(get_current_admin)])
+def import_courses(db: CurrentSession, courses_in: List[BulkImportCourseParam]) -> ResponseModel:
+    for course_data in courses_in:
+        # 1. Tạo Course
+        course_dict = course_data.model_dump(exclude={"lessons"})
+        db_course = Course(**course_dict)
+        db.add(db_course)
+        db.flush()
+
+        for lesson_data in course_data.lessons:
+            # 2. Tạo Lesson
+            lesson_dict = lesson_data.model_dump(exclude={"words"})
+            lesson_dict["course_id"] = db_course.id
+            db_lesson = Lesson(**lesson_dict)
+            db.add(db_lesson)
+            db.flush()
+
+            for word_data in lesson_data.words:
+                # 3. Tạo Word
+                word_dict = word_data.model_dump(exclude={"meanings"})
+                word_dict["lesson_id"] = db_lesson.id
+                db_word = Word(**word_dict)
+                db.add(db_word)
+                db.flush()
+
+                for meaning_data in word_data.meanings:
+                    # 4. Tạo Meaning
+                    meaning_dict = meaning_data.model_dump()
+                    meaning_dict["word_id"] = db_word.id
+                    db_meaning = Meaning(**meaning_dict)
+                    db.add(db_meaning)
+    
+    db.commit()
+    return response_base.success(msg=f"Đã import thành công {len(courses_in)} khóa học")

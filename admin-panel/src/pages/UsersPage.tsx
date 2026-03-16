@@ -7,8 +7,8 @@ interface User {
   email: string;
   name: string | null;
   phone: string | null;
-  is_premium: boolean;
-  created_at: string;
+  isPremium: boolean;
+  createdAt: string;
 }
 
 const UsersPage: React.FC = () => {
@@ -19,7 +19,11 @@ const UsersPage: React.FC = () => {
 
   useEffect(() => {
     api.get('/users/')
-      .then(r => setUsers(r.data))
+      .then(r => {
+        if (r.data.code === 200) {
+          setUsers(r.data.data);
+        }
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -157,7 +161,7 @@ const UsersPage: React.FC = () => {
                       {user.phone || '—'}
                     </td>
                     <td className="px-5 py-4">
-                      {user.is_premium ? (
+                      {user.isPremium ? (
                         <span
                           className="px-2.5 py-1 rounded-lg text-xs font-bold uppercase"
                           style={{ background: 'rgba(245,158,11,0.12)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.2)' }}
@@ -174,7 +178,7 @@ const UsersPage: React.FC = () => {
                       )}
                     </td>
                     <td className="px-5 py-4 text-xs" style={{ color: '#475569' }}>
-                      {new Date(user.created_at).toLocaleDateString('vi-VN', {
+                      {new Date(user.createdAt).toLocaleDateString('vi-VN', {
                         year: 'numeric', month: 'short', day: 'numeric'
                       })}
                     </td>

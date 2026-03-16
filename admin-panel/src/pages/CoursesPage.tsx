@@ -70,12 +70,24 @@ const CoursesPage: React.FC = () => {
 
     const reader = new FileReader();
     reader.onload = async (event) => {
+      setLoading(true);
       try {
         const data = JSON.parse(event.target?.result as string);
-        console.log('Importing data:', data);
-        alert('Tính năng Import hàng loạt đang được xử lý ở Backend. Dữ liệu đã được đọc thành công!');
+        const dataArray = Array.isArray(data) ? data : [data];
+        
+        const response = await courseApi.importCourses(dataArray);
+        if (response.data.code === 200) {
+          alert(`Import thành công! ${response.data.msg}`);
+          fetchCourses(); // Refresh list
+        } else {
+          alert(`Lỗi import: ${response.data.msg}`);
+        }
       } catch (err) {
-        alert('File JSON không hợp lệ!');
+        console.error('Import error:', err);
+        alert('File JSON không hợp lệ hoặc lỗi server!');
+      } finally {
+        setLoading(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
       }
     };
     reader.readAsText(file);

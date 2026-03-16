@@ -8,8 +8,8 @@ class CRUDUser:
         return db.query(User).filter(User.id == user_id).first()
 
     @staticmethod
-    def get_all(db: Session) -> list[User]:
-        return db.query(User).all()
+    def get_all(db: Session, skip: int = 0, limit: int = 100) -> list[User]:
+        return db.query(User).offset(skip).limit(limit).all()
 
     @staticmethod
     def update(db: Session, db_obj: User, obj_in: UpdateUserParam) -> User:
