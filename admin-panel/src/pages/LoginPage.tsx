@@ -26,12 +26,12 @@ const LoginPage: React.FC = () => {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
       
-      const token = response.data?.data?.accessToken;
+      const token = response.data.data?.accessToken;
       if (token) {
         login(token);
         navigate('/');
       } else {
-        setError('Phản hồi từ máy chủ không hợp lệ (Thiếu Token).');
+        setError('Không nhận được token từ hệ thống.');
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Email hoặc mật khẩu không chính xác.');

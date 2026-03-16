@@ -24,18 +24,15 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))
 
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = [
-        "https://amidemy.uk",
-        "https://admin.amidemy.uk",
-        "https://api.amidemy.uk",
-        "http://localhost:5173",  # Vite default
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "*", # Cho phép tất cả trong lúc dev, có thể siết lại sau
-    ]
+    # CORS
+    BACKEND_CORS_ORIGINS: list[str] = os.getenv(
+        "BACKEND_CORS_ORIGINS", 
+        "https://amidemy.uk,https://admin.amidemy.uk,https://api.amidemy.uk,http://localhost:5173"
+    ).split(",")
 
     # Admin config
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@vocab.com")
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "admin")
 
     # Documentation Auth (Basic Auth)
     DOCS_USERNAME: str = os.getenv("DOCS_USERNAME", "admin")
