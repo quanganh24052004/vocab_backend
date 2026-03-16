@@ -24,14 +24,10 @@ class Settings:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))
 
     # CORS
-    BACKEND_CORS_ORIGINS: list[str] = [
-        "http://localhost:5173",  # Vite default
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-        "*", # Cho phép tất cả trong lúc dev, có thể siết lại sau
-    ]
+    BACKEND_CORS_ORIGINS: list[str] = os.getenv("BACKEND_CORS_ORIGINS", "http://localhost:5173,http://localhost:8000").split(",")
 
     # Admin config
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@vocab.com")
+    ADMIN_PASSWORD: str = os.getenv("ADMIN_PASSWORD", "admin")
 
 settings = Settings()

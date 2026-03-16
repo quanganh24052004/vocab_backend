@@ -12,7 +12,7 @@ import {
   Edit2
 } from 'lucide-react';
 import { courseApi } from '../api/courseApi';
-import type { Course, Lesson, Word } from '../types/course';
+import type { Course, Lesson } from '../types/course';
 import CourseBreadcrumbs from '../components/CourseBreadcrumbs';
 
 type ViewMode = 'courses' | 'lessons' | 'words';
