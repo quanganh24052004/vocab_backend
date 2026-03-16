@@ -52,10 +52,16 @@ async def get_redoc_documentation(username: str = Depends(get_current_username))
 async def openapi(username: str = Depends(get_current_username)):
     return get_openapi(title=app.title, version=app.version, routes=app.routes)
 
-# Cấu hình CORS
+origins = [
+    "https://admin.amidemy.uk",
+    "https://amidemy.uk",
+    "http://localhost:3000",
+    "http://localhost:8080",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origins=origins, # Thay settings.BACKEND_CORS_ORIGINS bằng danh sách này
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
