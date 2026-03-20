@@ -36,12 +36,12 @@ def get_course_detail(db: CurrentSession, course_id: str) -> ResponseModel[GetCo
 
 # --- ADMIN APIs ---
 
-@router.post("/", summary="[Admin] Tạo khóa học mới", dependencies=[Depends(CurrentAdmin)])
+@router.post("/", summary="[Admin] Tạo khóa học mới", dependencies=[Depends(get_current_admin)])
 def create_course(db: CurrentSession, obj_in: CreateCourseParam) -> ResponseModel[GetCourseDetail]:
     course = crud_course.create(db, obj_in.model_dump())
     return response_base.success(data=course, msg="Tạo khóa học thành công")
 
-@router.put("/{course_id}", summary="[Admin] Cập nhật khóa học", dependencies=[Depends(CurrentAdmin)])
+@router.put("/{course_id}", summary="[Admin] Cập nhật khóa học", dependencies=[Depends(get_current_admin)])
 def update_course(
     db: CurrentSession, 
     course_id: str, 
@@ -53,7 +53,7 @@ def update_course(
     course = crud_course.update(db, db_obj, obj_in)
     return response_base.success(data=course, msg="Cập nhật thành công")
 
-@router.post("/{course_id}/lessons", summary="[Admin] Thêm bài học vào khóa học", dependencies=[Depends(CurrentAdmin)])
+@router.post("/{course_id}/lessons", summary="[Admin] Thêm bài học vào khóa học", dependencies=[Depends(get_current_admin)])
 def create_lesson(
     db: CurrentSession, 
     course_id: str, 

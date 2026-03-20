@@ -25,7 +25,7 @@ def get_users(db: CurrentSession, skip: int = 0, limit: int = 100) -> ResponseMo
     users = crud_user.get_all(db, skip=skip, limit=limit)
     return response_base.success(data=users)
 
-@router.delete("/{user_id}", summary="[Admin] Xóa người dùng", dependencies=[Depends(CurrentAdmin)])
+@router.delete("/{user_id}", summary="[Admin] Xóa người dùng", dependencies=[Depends(get_current_admin)])
 def delete_user(db: CurrentSession, user_id: str) -> ResponseModel:
     success = crud_user.delete(db, user_id)
     if not success:
